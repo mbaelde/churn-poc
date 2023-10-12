@@ -3,7 +3,7 @@ import sqlite3
 from pathlib import Path
 
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 
 raw_data_dir = Path("data/raw")
 processed_data_dir = Path("data/processed")
@@ -21,7 +21,7 @@ binary_cols = [
     "PaperlessBilling",
     "Churn",
 ]
-ordinal_cols = ["Contract", "PaymentMethod"]
+ordinal_cols = ["Contract", "PaymentMethod", "TenureGroup"]
 nominal_cols = [
     "MultipleLines",
     "InternetService",
@@ -32,6 +32,25 @@ nominal_cols = [
     "StreamingTV",
     "StreamingMovies",
 ]
+
+# Handle missing values (if any)
+data["TotalCharges"].fillna(data["TotalCharges"].median(), inplace=True)
+
+# Feature engineering
+data["TenureGroup"] = pd.cut(
+    data["tenure"],
+    bins=[0, 12, 24, 36, 48, 60, data["tenure"].max()],
+    labels=["0-1 Year", "1-2 Years", "2-3 Years", "3-4 Years", "4-5 Years", "5+ Years"],
+)
+data["MonthlyTotalChargesRatio"] = data["MonthlyCharges"] / data["TotalCharges"]
+
+# Feature scaling
+scaler = StandardScaler()
+data[
+    ["tenure", "MonthlyCharges", "TotalCharges", "MonthlyTotalChargesRatio"]
+] = scaler.fit_transform(
+    data[["tenure", "MonthlyCharges", "TotalCharges", "MonthlyTotalChargesRatio"]]
+)
 
 # Initialize encoders
 label_encoder = {col: LabelEncoder() for col in binary_cols + ordinal_cols}
