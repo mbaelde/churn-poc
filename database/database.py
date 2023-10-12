@@ -1,10 +1,11 @@
-from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy import Column, Float, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+
 class Customer(Base):
-    __tablename__ = 'customers'
+    __tablename__ = "customers"
 
     customerID = Column(String, primary_key=True)
     gender = Column(String)
