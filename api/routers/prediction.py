@@ -12,7 +12,6 @@ label_encoded_variables = [
     "Dependents",
     "PhoneService",
     "PaperlessBilling",
-    "Churn",
     "Contract",
     "PaymentMethod",
     "TenureGroup",
@@ -40,6 +39,8 @@ churn_model = models.ChurnModel(
 )
 churn_model.deserialize(Path("data/processed"))
 
+output_map = {0: "No Churn", 1: "Churn"}
+
 
 def predict_churn(data):
     # Convert the input data to a Pandas DataFrame
@@ -55,4 +56,4 @@ def predict_churn(data):
     # (e.g., 'Churn' or 'No Churn')
 
     # Return the predictions
-    return predictions[0]
+    return output_map[predictions[0]]

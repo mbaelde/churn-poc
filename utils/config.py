@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Define your configuration settings as constants
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///test.db")

@@ -42,6 +42,7 @@ data["TenureGroup"] = pd.cut(
     bins=[0, 12, 24, 36, 48, 60, data["tenure"].max()],
     labels=["0-1 Year", "1-2 Years", "2-3 Years", "3-4 Years", "4-5 Years", "5+ Years"],
 )
+print(data["tenure"].max())
 data["MonthlyTotalChargesRatio"] = data["MonthlyCharges"] / data["TotalCharges"]
 
 # Feature scaling

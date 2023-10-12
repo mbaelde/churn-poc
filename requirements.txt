@@ -2,3 +2,6 @@ pandas
 sqlalchemy
 seaborn
 fastapi
+python-dotenv
+unittest
+httpx

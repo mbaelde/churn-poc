@@ -39,7 +39,7 @@ class ChurnModel:
         processed_X = X.copy()
         processed_X["TenureGroup"] = pd.cut(
             processed_X["tenure"],
-            bins=[0, 12, 24, 36, 48, 60, X["tenure"].max()],
+            bins=[0, 12, 24, 36, 48, 60, 72],
             labels=[
                 "0-1 Year",
                 "1-2 Years",
@@ -56,7 +56,7 @@ class ChurnModel:
             processed_X[self.standard_scaler_variables]
         )
         for var in self.label_encoded_variables:
-            processed_X[var] = self.label_encoder[var].transform(X[var])
+            processed_X[var] = self.label_encoder[var].transform(processed_X[var])
 
         nominal_data = self.onehot_encoder.transform(
             processed_X[self.onehot_encoded_variables]
