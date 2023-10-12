@@ -51,6 +51,8 @@ data[
 ] = scaler.fit_transform(
     data[["tenure", "MonthlyCharges", "TotalCharges", "MonthlyTotalChargesRatio"]]
 )
+with open(processed_data_dir.joinpath("standard_scaler.pkl"), "wb") as scaler_file:
+    pickle.dump(scaler, scaler_file)
 
 # Initialize encoders
 label_encoder = {col: LabelEncoder() for col in binary_cols + ordinal_cols}
