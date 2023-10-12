@@ -26,7 +26,7 @@ The "Telco Customer Churn" dataset is a popular dataset often used for customer 
 
 10. **OnlineSecurity:** A variable indicating whether the customer has online security services (e.g., "Yes" "No" or "No internet service").
 
-11. **OnlineBackup:** A variable indicating whether the customer has online backup services (e.g., "Yes" "Nos" or "No internet service").
+11. **OnlineBackup:** A variable indicating whether the customer has online backup services (e.g., "Yes" "No" or "No internet service").
 
 12. **DeviceProtection:** A variable indicating whether the customer has device protection services (e.g., "Yes" "No" or "No internet service").
 
@@ -46,4 +46,4 @@ The "Telco Customer Churn" dataset is a popular dataset often used for customer 
 
 20. **TotalCharges:** The total charges incurred by the customer during their entire tenure.
 
-21. **Churn:** The target variable indicating whether the customer has churned (1 for "Yes," 0 for "No"). This is the variable of primary interest for churn prediction.
+21. **Churn:** The target variable indicating whether the customer who left within the last monthh, called Churn (1 for "Yes," 0 for "No"). This is the variable of primary interest for churn prediction.
