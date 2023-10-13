@@ -2,6 +2,57 @@
 
 The goal of this project is to create a data-driven application that predicts customer churn for a subscription-based business using a provided dataset. You will develop a FastAPI-based API for making real-time churn predictions and showcase your proficiency in Python, SQL, and Git throughout the project.
 
+## How to
+
+### Download the dataset
+
+I used the ["Telco Customer Churn"](https://www.kaggle.com/datasets/blastchar/telco-customer-churn) from Kaggle. The data directory should be organized as follows:
+
+```bash
+churn-poc/
+├── data/
+│   ├── raw/              # Raw data files
+│   ├── processed/        # Processed data files
+│
+```
+
+The file `WA_Fn-UseC_-Telco-Customer-Churn.csv` should be put in the `data/raw/` directory.
+
+## Init the database
+
+The first time you use the package, you have to initialise the databases by running the following scripts:
+
+```bash
+$ python database/init_customer_db.py
+$ python database/init_customer_churn_db.py
+```
+
+## Preprocess the database to train the model
+
+Then you have to preprocess the customer database using the following script:
+
+```bash
+$ python data/preprocessing.py
+```
+
+## Train the model
+
+Finally you can train a basic classification model using the following script:
+
+```bash
+$ python models/train_model.py
+```
+
+## Run a server with FastAPI
+
+Once the model is trained you can run a server by running the following command:
+
+```bash
+$ uvicorn api.main:app --reload
+```
+
+You can then use the sample example in `data/example.json` to make a prediction.
+
 ## Dataset description
 
 The "Telco Customer Churn" dataset is a popular dataset often used for customer churn analysis and prediction. It typically contains various customer-related variables, including demographic information, subscription details, and whether the customer has churned or not. Below is a description of the common variables found in such a dataset:
