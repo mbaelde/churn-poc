@@ -2,8 +2,8 @@ import os
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from routers.prediction import predict_churn
-from schemas.prediction import CustomerData
+from api.routers.prediction import predict_churn
+from api.schemas.prediction import CustomerData
 
 load_dotenv()
 
