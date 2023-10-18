@@ -1,6 +1,6 @@
 import pickle
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
@@ -40,9 +40,17 @@ class FeaturePreprocessor:
 
     """
 
-    def __init__(self, model, encoded_variables: List[str]):
+    def __init__(
+        self,
+        model,
+        encoded_variables: List[str],
+        output_variables: List[str],
+        transform_to_dataframe: bool = False,
+    ):
         self._model = model
         self._encoded_variables = encoded_variables
+        self._output_variables = output_variables
+        self._transform_to_dataframe = transform_to_dataframe
 
     @property
     def model(self):
@@ -51,7 +59,9 @@ class FeaturePreprocessor:
         """
         return self._model
 
-    def fit(self, X: pd.DataFrame) -> "FeaturePreprocessor":
+    def fit(
+        self, X: pd.DataFrame, y: Optional[pd.DataFrame] = None
+    ) -> "FeaturePreprocessor":
         """
         Fit the feature preprocessing model on the provided DataFrame.
 
@@ -64,7 +74,9 @@ class FeaturePreprocessor:
         """
         self._model.fit(X[self._encoded_variables])
 
-    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+    def transform(
+        self, X: pd.DataFrame, y: Optional[pd.DataFrame] = None
+    ) -> pd.DataFrame:
         """
         Transform the provided DataFrame using the fitted feature preprocessing model.
 
@@ -75,9 +87,23 @@ class FeaturePreprocessor:
             pd.DataFrame: The transformed DataFrame.
 
         """
-        return self._model.transform(X[self._encoded_variables])
+        data = X.copy()
+        if self._transform_to_dataframe:
+            transformed_data = self._model.transform(data[self._encoded_variables])
+            nominal_columns = self.get_feature_names(self._encoded_variables)
+            transformed_data = pd.DataFrame(transformed_data, columns=nominal_columns)
+            data = pd.concat(
+                [data.drop(columns=self._encoded_variables), transformed_data], axis=1
+            )
+        else:
+            data[self._output_variables] = self._model.transform(
+                data[self._encoded_variables]
+            )
+        return data
 
-    def fit_transform(self, X: pd.DataFrame) -> pd.DataFrame:
+    def fit_transform(
+        self, X: pd.DataFrame, y: Optional[pd.DataFrame] = None
+    ) -> pd.DataFrame:
         """
         Fit and transform the provided DataFrame using the feature preprocessing model.
 
@@ -88,8 +114,8 @@ class FeaturePreprocessor:
             pd.DataFrame: The transformed DataFrame.
 
         """
-        self.fit(X[self._encoded_variables])
-        return self.transform(X[self._encoded_variables])
+        self.fit(X, y)
+        return self.transform(X, y)
 
     def serialize(self, feature_preprocessor_path: Path):
         """
@@ -129,6 +155,7 @@ class FeaturePreprocessor:
         except AttributeError:
             return []
 
+
 class MultiColumnLabelEncoder:
     def __init__(self, encoded_variables: List[str]):
         """
@@ -143,7 +170,9 @@ class MultiColumnLabelEncoder:
         self._encoded_variables = encoded_variables
         self._model = {var: LabelEncoder() for var in encoded_variables}
 
-    def fit(self, X: pd.DataFrame) -> "MultiColumnLabelEncoder":
+    def fit(
+        self, X: pd.DataFrame, y: Optional[pd.DataFrame] = None
+    ) -> "MultiColumnLabelEncoder":
         """
         Fit the MultiColumnLabelEncoder.
 
@@ -156,7 +185,9 @@ class MultiColumnLabelEncoder:
         for var in self._encoded_variables:
             self._model[var].fit(X[var])
 
-    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+    def transform(
+        self, X: pd.DataFrame, y: Optional[pd.DataFrame] = None
+    ) -> pd.DataFrame:
         """
         Transform data to encode the specified variables.
 
@@ -169,8 +200,11 @@ class MultiColumnLabelEncoder:
         data = X.copy()
         for var in self._encoded_variables:
             data[var] = self._model[var].transform(data[var])
+        return data
 
-    def fit_transform(self, X: pd.DataFrame) -> pd.DataFrame:
+    def fit_transform(
+        self, X: pd.DataFrame, y: Optional[pd.DataFrame] = None
+    ) -> pd.DataFrame:
         """
         Fit and transform the input data to encode the specified variables.
 
@@ -180,8 +214,8 @@ class MultiColumnLabelEncoder:
         Returns:
             pd.DataFrame: Transformed data with encoded variables.
         """
-        self.fit(X)
-        return self.transform(X)
+        self.fit(X, y)
+        return self.transform(X, y)
 
     def serialize(self, feature_preprocessor_path: Path):
         """
@@ -233,7 +267,9 @@ class TenureBinarizer:
         self._bins = bins
         self._labels = labels
 
-    def fit(self, X: pd.DataFrame) -> "TenureBinarizer":
+    def fit(
+        self, X: pd.DataFrame, y: Optional[pd.DataFrame] = None
+    ) -> "TenureBinarizer":
         """
         Fit the TenureBinarizer.
 
@@ -245,7 +281,9 @@ class TenureBinarizer:
         """
         return self
 
-    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+    def transform(
+        self, X: pd.DataFrame, y: Optional[pd.DataFrame] = None
+    ) -> pd.DataFrame:
         """
         Transform tenure values into bins and add a 'TenureGroup' column.
 
@@ -263,7 +301,9 @@ class TenureBinarizer:
         )
         return data
 
-    def fit_transform(self, X: pd.DataFrame) -> pd.DataFrame:
+    def fit_transform(
+        self, X: pd.DataFrame, y: Optional[pd.DataFrame] = None
+    ) -> pd.DataFrame:
         """
         Fit and transform the input data.
 
@@ -294,7 +334,7 @@ class RatioComputer:
         self._denominator = denominator
         self._ratio_name = ratio_name
 
-    def fit(self, X: pd.DataFrame) -> "RatioComputer":
+    def fit(self, X: pd.DataFrame, y: Optional[pd.DataFrame] = None) -> "RatioComputer":
         """
         Fit the RatioComputer.
 
@@ -306,7 +346,9 @@ class RatioComputer:
         """
         return self
 
-    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+    def transform(
+        self, X: pd.DataFrame, y: Optional[pd.DataFrame] = None
+    ) -> pd.DataFrame:
         """
         Transform data to compute the specified ratio.
 
@@ -320,7 +362,9 @@ class RatioComputer:
         data[self._ratio_name] = data[self._numerator] / data[self._denominator]
         return data
 
-    def fit_transform(self, X: pd.DataFrame) -> pd.DataFrame:
+    def fit_transform(
+        self, X: pd.DataFrame, y: Optional[pd.DataFrame] = None
+    ) -> pd.DataFrame:
         """
         Fit and transform the input data to compute the specified ratio.
 
@@ -330,5 +374,5 @@ class RatioComputer:
         Returns:
             pd.DataFrame: Transformed data with the computed ratio added.
         """
-        self.fit(X)
-        return self.transform(X)
+        self.fit(X, y)
+        return self.transform(X, y)

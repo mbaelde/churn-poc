@@ -10,12 +10,13 @@ from features import (
     TenureBinarizer,
 )
 from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
+# Load the dataset
 raw_data_dir = Path("data/raw")
 processed_data_dir = Path("data/processed")
 conn = sqlite3.connect(raw_data_dir.joinpath("telco_customer_churn.db"))
-# Load the dataset
 data = pd.read_sql_query("SELECT * FROM customers", conn)
 conn.close()
 
@@ -41,19 +42,26 @@ nominal_cols = [
 ]
 
 # Handle missing values (if any)
-imputer = SimpleImputer(strategy="median")
-data["TotalCharges"] = imputer.fit_transform(data[["TotalCharges"]])
+imputer = FeaturePreprocessor(
+    SimpleImputer(strategy="median"),
+    encoded_variables=["TotalCharges"],
+    output_variables=["TotalCharges"],
+)
 
 # Feature engineering
 bins = [0, 12, 24, 36, 48, 60, np.inf]
 labels = ["0-1 Year", "1-2 Years", "2-3 Years", "3-4 Years", "4-5 Years", "5+ Years"]
-tenure_binarizer = TenureBinarizer(bins=bins, labels=labels)
-data = tenure_binarizer.fit_transform(data)
-
-ratio_computer = RatioComputer(
-    "MonthlyCharges", "TotalCharges", "MonthlyTotalChargesRatio"
+tenure_binarizer = FeaturePreprocessor(
+    TenureBinarizer(bins=bins, labels=labels),
+    encoded_variables=["tenure"],
+    output_variables=["tenure", "TenureGroup"],
 )
-data = ratio_computer.fit_transform(data)
+
+ratio_computer = FeaturePreprocessor(
+    RatioComputer("MonthlyCharges", "TotalCharges", "MonthlyTotalChargesRatio"),
+    encoded_variables=["MonthlyCharges", "TotalCharges"],
+    output_variables=["MonthlyCharges", "TotalCharges", "MonthlyTotalChargesRatio"],
+)
 
 # Feature scaling
 standard_scaled_variables = [
@@ -63,29 +71,38 @@ standard_scaled_variables = [
     "MonthlyTotalChargesRatio",
 ]
 scaler = FeaturePreprocessor(
-    model=StandardScaler(), encoded_variables=standard_scaled_variables
+    model=StandardScaler(),
+    encoded_variables=standard_scaled_variables,
+    output_variables=standard_scaled_variables,
 )
-data[standard_scaled_variables] = scaler.fit_transform(data[standard_scaled_variables])
-scaler.serialize(processed_data_dir.joinpath("standard_scaler.pkl"))
 
 # Initialize encoders
 label_encoder_variables = binary_cols + ordinal_cols
 label_encoder = MultiColumnLabelEncoder(encoded_variables=label_encoder_variables)
-data[label_encoder_variables] = label_encoder.fit_transform(data)
-label_encoder.serialize(processed_data_dir.joinpath(f"label_encoder.pkl"))
 
 # One-hot encoding for nominal variables
 onehot_encoder = FeaturePreprocessor(
-    model=OneHotEncoder(sparse=False, drop="first"), encoded_variables=nominal_cols
-)  # 'drop' is set to 'first' to avoid multicollinearity
+    model=OneHotEncoder(sparse=False, drop="first"),
+    encoded_variables=nominal_cols,
+    output_variables=nominal_cols,
+    transform_to_dataframe=True,
+)
 
-nominal_data = onehot_encoder.fit_transform(data)
-nominal_columns = onehot_encoder.get_feature_names(nominal_cols)
-nominal_df = pd.DataFrame(nominal_data, columns=nominal_columns)
+feature_pipeline = Pipeline(
+    [
+        ("imputer", imputer),
+        ("tenure_binarizer", tenure_binarizer),
+        ("ratio_computer", ratio_computer),
+        ("scaler", scaler),
+        ("label_encoder", label_encoder),
+        ("onehot_encoder", onehot_encoder),
+    ]
+)
+data_encoded = feature_pipeline.fit_transform(data)
+
+scaler.serialize(processed_data_dir.joinpath("standard_scaler.pkl"))
+label_encoder.serialize(processed_data_dir.joinpath(f"label_encoder.pkl"))
 onehot_encoder.serialize(processed_data_dir.joinpath(f"onehot_encoder.pkl"))
-
-# Combine the one-hot encoded nominal variables with the rest of the dataset
-data_encoded = pd.concat([data.drop(columns=nominal_cols), nominal_df], axis=1)
 
 # Display the transformed dataset
 data_encoded.to_csv(
