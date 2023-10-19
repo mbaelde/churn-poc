@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-import database
+from database.database import Customer
 
 database_dir = "data/raw/telco_customer_churn.db"
 conn = sqlite3.connect(database_dir)
@@ -54,7 +54,7 @@ data = pd.read_csv(data_dir)
 data["TotalCharges"] = pd.to_numeric(data["TotalCharges"], errors="coerce")
 
 for _, row in data.iterrows():
-    customer = database.Customer(**row.to_dict())
+    customer = Customer(**row.to_dict())
     session.add(customer)
 
 session.commit()
