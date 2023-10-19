@@ -91,7 +91,7 @@ class FeaturePreprocessor:
         if self._transform_to_dataframe:
             transformed_data = self._model.transform(data[self._encoded_variables])
             nominal_columns = self.get_feature_names(self._encoded_variables)
-            transformed_data = pd.DataFrame(transformed_data, columns=nominal_columns)
+            transformed_data = pd.DataFrame(transformed_data, index=data.index, columns=nominal_columns)
             data = pd.concat(
                 [data.drop(columns=self._encoded_variables), transformed_data], axis=1
             )

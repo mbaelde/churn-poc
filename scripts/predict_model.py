@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import StratifiedKFold, train_test_split
+from sklearn.metrics import accuracy_score, classification_report
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
@@ -22,9 +22,6 @@ from models.features import (
 
 def main(
     base_path: Path = Path("data"),
-    to_production: bool = False,
-    overwrite_preprocessing: bool = False,
-    n_splits: int = 5,
 ):
     # Load the dataset
     raw_data_dir = base_path.joinpath("raw")
@@ -127,17 +124,10 @@ def main(
     )
 
     training_data_path = processed_data_dir.joinpath("telco_customer_churn.csv")
-    if overwrite_preprocessing:
-        data_encoded = feature_pipeline.fit_transform(data)
-        scaler.serialize(preprocessors_dir.joinpath("standard_scaler.pkl"))
-        label_encoder.serialize(preprocessors_dir.joinpath(f"label_encoder.pkl"))
-        onehot_encoder.serialize(preprocessors_dir.joinpath(f"onehot_encoder.pkl"))
-        data_encoded.to_csv(training_data_path)
-    else:
-        data_encoded = pd.read_csv(training_data_path, index_col=0)
-        scaler.deserialize(preprocessors_dir.joinpath("standard_scaler.pkl"))
-        label_encoder.deserialize(preprocessors_dir.joinpath(f"label_encoder.pkl"))
-        onehot_encoder.deserialize(preprocessors_dir.joinpath(f"onehot_encoder.pkl"))
+    data_encoded = pd.read_csv(training_data_path, index_col=0)
+    scaler.deserialize(preprocessors_dir.joinpath("standard_scaler.pkl"))
+    label_encoder.deserialize(preprocessors_dir.joinpath(f"label_encoder.pkl"))
+    onehot_encoder.deserialize(preprocessors_dir.joinpath(f"onehot_encoder.pkl"))
 
     # Split the data into training and testing sets
     X = data_encoded.drop("Churn", axis=1)
@@ -148,37 +138,24 @@ def main(
         model=RandomForestClassifier(n_estimators=100, random_state=42),
     )
 
-    suffix = "_prod" if to_production else "_dev"
-    if to_production:
-        churn_model.train(X, y, preprocess_features=False)
-        churn_model.serialize(models_dir.joinpath(f"churn_model{suffix}.pkl"))
-    else:
-        kfold = StratifiedKFold(n_splits=n_splits)
-        train_ids = {}
-        test_ids = {}
-        for i, (train_index, test_index) in enumerate(kfold.split(X, y)):
-            train_ids[f"fold_{i}"] = X.index[train_index].to_list()
-            test_ids[f"fold_{i}"] = X.index[test_index].to_list()
-            churn_model.train(
-                X.iloc[train_index], y.iloc[train_index], preprocess_features=False
-            )
-            churn_model.serialize(models_dir.joinpath(f"churn_model{suffix}_{i}.pkl"))
-        with open(processed_data_dir.joinpath("train_folds.json"), "w") as f:
-            json.dump(train_ids, f)
-        with open(processed_data_dir.joinpath("test_folds.json"), "w") as f:
-            json.dump(test_ids, f)
+    with open(processed_data_dir.joinpath("test_folds.json"), "r") as f:
+        test_ids = json.load(f)
+
+    for fold, test_index in enumerate(test_ids.values()):
+        churn_model.deserialize(models_dir.joinpath(f"churn_model_dev_{fold}.pkl"))
+
+        X_test = X.loc[test_index]
+        y_test = y.loc[test_index]
+        # Make predictions and evaluate the model
+        y_pred = churn_model.predict(X_test, preprocess_features=False)
+        print(f"Accuracy fold {fold}:", accuracy_score(y_test, y_pred))
+        print(classification_report(y_test, y_pred))
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--base-path", default="data")
-    parser.add_argument("--to-production", action="store_true")
-    parser.add_argument("--overwrite-preprocessing", action="store_true")
 
     args = parser.parse_args()
-    main(
-        base_path=Path(args.base_path),
-        to_production=args.to_production,
-        overwrite_preprocessing=args.overwrite_preprocessing,
-    )
+    main(base_path=Path(args.base_path))
