@@ -5,8 +5,8 @@ import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-import api.models as models
-from data.features import (
+from models.models import ChurnModel
+from models.features import (
     FeaturePreprocessor,
     MultiColumnLabelEncoder,
     RatioComputer,
@@ -80,7 +80,7 @@ preprocessors = Pipeline(
         ("onehot_encoder", onehot_encoder),
     ]
 )
-churn_model = models.ChurnModel(
+churn_model = ChurnModel(
     preprocessors=preprocessors,
 )
 churn_model.deserialize(Path("data/processed"))

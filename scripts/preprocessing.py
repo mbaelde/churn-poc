@@ -7,7 +7,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from data.features import (
+from models.features import (
     FeaturePreprocessor,
     MultiColumnLabelEncoder,
     RatioComputer,

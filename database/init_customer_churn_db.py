@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-import database
+from database.database import get_customer, create_customer
 
 load_dotenv()
 
@@ -38,10 +38,10 @@ Base.metadata.create_all(bind=engine)
 
 # Create a new customer entry
 db = SessionLocal()
-database.create_customer(db, customerID="12345", churn_prediction="Churn")
+create_customer(db, customerID="12345", churn_prediction="Churn")
 
 # Retrieve customer data
-customer = database.get_customer(db, customerID="12345")
+customer = get_customer(db, customerID="12345")
 if customer:
     print(
         f"Customer ID: {customer.customerID}, Churn Prediction: {customer.churn_prediction}"
