@@ -3,15 +3,16 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from features import (
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+
+from data.features import (
     FeaturePreprocessor,
     MultiColumnLabelEncoder,
     RatioComputer,
     TenureBinarizer,
 )
-from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 # Load the dataset
 raw_data_dir = Path("data/raw")
