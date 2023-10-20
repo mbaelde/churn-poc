@@ -18,7 +18,7 @@ from models.features import (
 
 class TestChurnModel(unittest.TestCase):
     def setUp(self):
-            
+
         label_encoded_variables = [
             "gender",
             "Partner",
@@ -47,7 +47,14 @@ class TestChurnModel(unittest.TestCase):
         ]
 
         bins = [0, 12, 24, 36, 48, 60, np.inf]
-        labels = ["0-1 Year", "1-2 Years", "2-3 Years", "3-4 Years", "4-5 Years", "5+ Years"]
+        labels = [
+            "0-1 Year",
+            "1-2 Years",
+            "2-3 Years",
+            "3-4 Years",
+            "4-5 Years",
+            "5+ Years",
+        ]
         tenure_binarizer = FeaturePreprocessor(
             TenureBinarizer(bins=bins, labels=labels),
             encoded_variables=["tenure"],
@@ -56,14 +63,20 @@ class TestChurnModel(unittest.TestCase):
         ratio_computer = FeaturePreprocessor(
             RatioComputer("MonthlyCharges", "TotalCharges", "MonthlyTotalChargesRatio"),
             encoded_variables=["MonthlyCharges", "TotalCharges"],
-            output_variables=["MonthlyCharges", "TotalCharges", "MonthlyTotalChargesRatio"],
+            output_variables=[
+                "MonthlyCharges",
+                "TotalCharges",
+                "MonthlyTotalChargesRatio",
+            ],
         )
         scaler = FeaturePreprocessor(
             model=StandardScaler(),
             encoded_variables=standard_scaler_variables,
             output_variables=standard_scaler_variables,
         )
-        label_encoder = MultiColumnLabelEncoder(encoded_variables=label_encoded_variables)
+        label_encoder = MultiColumnLabelEncoder(
+            encoded_variables=label_encoded_variables
+        )
         onehot_encoder = FeaturePreprocessor(
             model=OneHotEncoder(sparse=False, drop="first"),
             encoded_variables=onehot_encoded_variables,
@@ -89,7 +102,6 @@ class TestChurnModel(unittest.TestCase):
         )
         models_dir = Path("data/models")
         self.churn_model.deserialize(models_dir.joinpath("churn_model_prod.pkl"))
-
 
         # Sample input data for prediction
         with open("data/example_no_churn.json", "r") as f:

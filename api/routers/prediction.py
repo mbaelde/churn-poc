@@ -95,7 +95,7 @@ def predict_churn(data):
 
     # Perform the necessary preprocessing steps on the input data
     # (e.g., encoding categorical variables and feature scaling)
-    #X = churn_model.preprocess(input_data)
+    # X = churn_model.preprocess(input_data)
     # Make predictions using the model
     predictions = churn_model.predict(input_data)
 

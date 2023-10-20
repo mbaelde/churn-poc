@@ -1,8 +1,8 @@
 import json
 import unittest
 
-from fastapi.testclient import TestClient
 from fastapi.templating import Jinja2Templates
+from fastapi.testclient import TestClient
 
 from api.main import app
 
@@ -26,7 +26,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         prediction = response.json()
         self.assertEqual(prediction, {"Churn Prediction": "No Churn"})
-    
+
     def test_predict_churn_error(self):
         # Define a sample request data
         with open("data/example_churn.json", "r") as f:
@@ -39,17 +39,26 @@ class TestAPI(unittest.TestCase):
             response = client.post("/predict-churn", json=data)
 
         exception = context.exception
-        self.assertEqual(str(exception), "y contains previously unseen labels: 'Non binary'")
+        self.assertEqual(
+            str(exception), "y contains previously unseen labels: 'Non binary'"
+        )
 
     def test_successful_login(self):
-        response = client.post("/login", data={"username": "testuser", "password": "testpassword"})
-        self.assertEqual(response.status_code, 200)  # Modify to your expected status code for success
+        response = client.post(
+            "/login", data={"username": "testuser", "password": "testpassword"}
+        )
+        self.assertEqual(
+            response.status_code, 200
+        )  # Modify to your expected status code for success
 
     def test_failed_login(self):
-        response = client.post("/login", data={"username": "testuser", "password": "wrongpassword"})
-        self.assertEqual(response.status_code, 200)  # Modify to your expected status code for failure
+        response = client.post(
+            "/login", data={"username": "testuser", "password": "wrongpassword"}
+        )
+        self.assertEqual(
+            response.status_code, 200
+        )  # Modify to your expected status code for failure
         self.assertIn("Invalid credentials", response.text)
-
 
 
 if __name__ == "__main__":
