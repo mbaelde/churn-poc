@@ -68,15 +68,8 @@ async def login(request: Request, username: str = Form(...), password: str = For
 
 @app.post("/predict-churn")
 async def predict_churn_endpoint(
-    data: dict, credentials: HTTPBasicCredentials = Depends(security)
+    data: dict,
 ):
-    user = fake_users_db.get(credentials.username)
-    if user is None or user["password"] != credentials.password:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Unauthorized",
-            headers={"WWW-Authenticate": "Basic"},
-        )
     data = CustomerData(**data)
     prediction = predict_churn(data)
     return {"Churn Prediction": prediction}
