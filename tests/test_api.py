@@ -25,7 +25,7 @@ class TestAPI(unittest.TestCase):
         # Validate the response
         self.assertEqual(response.status_code, 200)
         prediction = response.json()
-        self.assertEqual(prediction, {"Churn Prediction": "No Churn"})
+        self.assertEqual(prediction, {"churnPrediction": "No Churn"})
 
     def test_predict_churn_error(self):
         # Define a sample request data

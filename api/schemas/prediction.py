@@ -23,3 +23,6 @@ class CustomerData(BaseModel):
     PaymentMethod: str
     MonthlyCharges: float
     TotalCharges: float
+
+class CustomerChurnPrediction(BaseModel):
+    churnPrediction: str

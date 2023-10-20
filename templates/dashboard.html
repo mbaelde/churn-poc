@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Welcome to the Dashboard</h1>
+    <p>You are logged in. What would you like to do?</p>
+
+    <div>
+        <button onclick="navigateTo('/customer-database')">Customer Database Management</button>
+        <button onclick="navigateTo('/churn-prediction')">Churn Prediction</button>
+    </div>
+
+    <script>
+        function navigateTo(url) {
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>

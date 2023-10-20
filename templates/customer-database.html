@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Database</title>
+</head>
+<body>
+    <h1>Customer Database</h1>
+
+    <h2>List of Customers</h2>
+    <form action="/customer-database/access" method="post">
+        <label for="customerID">Select a Customer:</label>
+        <select name="customerID" id="customerID" required>
+            {% for customer_id in customer_ids %}
+            <option value="{{ customer_id }}">{{ customer_id }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Access">
+    </form>
+
+    <h2>Customer Information</h2>
+    <div id="customerInfoBox">
+        {% if customer_info %}
+        <h3>Customer ID: {{ customer_info.customerID }}</h3>
+        <table>
+            <tr>
+                <td>Gender:</td>
+                <td>{{ customer_info.gender }}</td>
+            </tr>
+            <tr>
+                <td>SeniorCitizen:</td>
+                <td>{{ customer_info.SeniorCitizen }}</td>
+            </tr>
+            <tr>
+                <td>Partner:</td>
+                <td>{{ customer_info.Partner }}</td>
+            </tr>
+            <tr>
+                <td>Dependents:</td>
+                <td>{{ customer_info.Dependents }}</td>
+            </tr>
+            <tr>
+                <td>tenure:</td>
+                <td>{{ customer_info.tenure }}</td>
+            </tr>
+            <tr>
+                <td>PhoneService:</td>
+                <td>{{ customer_info.PhoneService }}</td>
+            </tr>
+            <tr>
+                <td>MultipleLines:</td>
+                <td>{{ customer_info.MultipleLines }}</td>
+            </tr>
+            <tr>
+                <td>InternetService:</td>
+                <td>{{ customer_info.InternetService }}</td>
+            </tr>
+            <tr>
+                <td>OnlineSecurity:</td>
+                <td>{{ customer_info.OnlineSecurity }}</td>
+            </tr>
+            <tr>
+                <td>OnlineBackup:</td>
+                <td>{{ customer_info.OnlineBackup }}</td>
+            </tr>
+            <tr>
+                <td>DeviceProtection:</td>
+                <td>{{ customer_info.DeviceProtection }}</td>
+            </tr>
+            <tr>
+                <td>TechSupport:</td>
+                <td>{{ customer_info.TechSupport }}</td>
+            </tr>
+            <tr>
+                <td>StreamingTV:</td>
+                <td>{{ customer_info.StreamingTV }}</td>
+            </tr>
+            <tr>
+                <td>StreamingMovies:</td>
+                <td>{{ customer_info.StreamingMovies }}</td>
+            </tr>
+            <tr>
+                <td>Contract:</td>
+                <td>{{ customer_info.Contract }}</td>
+            </tr>
+            <tr>
+                <td>PaperlessBilling:</td>
+                <td>{{ customer_info.PaperlessBilling }}</td>
+            </tr>
+            <tr>
+                <td>PaymentMethod:</td>
+                <td>{{ customer_info.PaymentMethod }}</td>
+            </tr>
+            <tr>
+                <td>MonthlyCharges:</td>
+                <td>{{ customer_info.MonthlyCharges }}</td>
+            </tr>
+            <tr>
+                <td>TotalCharges:</td>
+                <td>{{ customer_info.TotalCharges }}</td>
+            </tr>
+            <tr>
+                <td>Churn:</td>
+                <td>{{ customer_info.Churn }}</td>
+            </tr>
+        </table>
+        {% else %}
+        <p>No customer information available.</p>
+        {% endif %}
+    </div>
+
+    <h2>Add Customer</h2>
+    <form action="/customer-database/add" method="post">
+        <!-- Add input fields for customer information (e.g., name, email, etc.) -->
+        <input type="submit" value="Add Customer">
+    </form>
+
+    <h2>Delete Customer</h2>
+    <form action="/customer-database/delete" method="post">
+        <label for="customerID">Customer ID:</label>
+        <input type="text" name="customerID" id="customerID" required>
+        <input type="submit" value="Delete">
+    </form>
+</body>
+</html>
