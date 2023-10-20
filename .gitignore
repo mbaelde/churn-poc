@@ -1,4 +1,7 @@
-data/**
+data/models/*
+data/preprocessors/*
+data/processed/*
+data/raw/*
 
 **/__pycache__/**
 
