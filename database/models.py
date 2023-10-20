@@ -38,17 +38,17 @@ class CustomerChurn(Base):
     churn_prediction = Column(String)
 
 
-# Step 4: Interact with the database (e.g., insert data)
 def create_customer(db, customerID: str, churn_prediction: str):
-    id_max = int(db.query(func.max(CustomerChurn.id)).scalar())
+    id_max = db.query(func.max(CustomerChurn.id)).scalar()
+    if id_max is None:
+        id_max = -1
+    else:
+        id_max = int(id_max)
     db_customer = CustomerChurn(
         id=id_max + 1, customerID=customerID, churn_prediction=churn_prediction
     )
     db.add(db_customer)
     db.commit()
-
-
-#    db.refresh(db_customer)
 
 
 def get_customer(db, customerID: str):
