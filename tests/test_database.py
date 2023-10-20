@@ -1,12 +1,11 @@
 import os
-import sqlite3
 import unittest
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database.database import CustomerChurn, create_customer, get_customer
+from database.models import CustomerChurn, create_customer, get_customer
 
 load_dotenv()
 
