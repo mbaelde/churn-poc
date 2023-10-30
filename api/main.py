@@ -9,6 +9,9 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from api.routers.prediction import predict_churn
 from api.schemas.prediction import CustomerChurnPrediction, CustomerData
+from utils.logger import setup_logger
+
+logger = setup_logger("api_main")
 
 # Create FastAPI app
 app = FastAPI()
@@ -71,7 +74,7 @@ async def login(request: Request, username: str = Form(...), password: str = For
     return templates.TemplateResponse("dashboard.html", {"request": request})
 
 
-@app.post("/predict-churn")
+@app.post("/churn-prediction/predict-churn")
 async def predict_churn_endpoint(data: dict) -> CustomerChurnPrediction:
     """Predict churn based on customer data.
 
@@ -176,22 +179,103 @@ async def access_customer(request: Request, customerID: str = Form(...)):
 
 
 @app.post("/customer-database/add", response_class=HTMLResponse)
-async def add_customer(request: Request, customer_data: dict = Form(...)):
-    # You can implement code to add a new customer with the provided data
-    # Replace the following line with your database insert logic
-    # Insert customer_data into your database
+async def add_customer(
+    request: Request,
+    customerID: str = Form(...),
+    gender: str = Form(...),
+    SeniorCitizen: int = Form(...),
+    Partner: str = Form(...),
+    Dependents: str = Form(...),
+    tenure: int = Form(...),
+    PhoneService: str = Form(...),
+    MultipleLines: str = Form(...),
+    InternetService: str = Form(...),
+    OnlineSecurity: str = Form(...),
+    OnlineBackup: str = Form(...),
+    DeviceProtection: str = Form(...),
+    TechSupport: str = Form(...),
+    StreamingTV: str = Form(...),
+    StreamingMovies: str = Form(...),
+    Contract: str = Form(...),
+    PaperlessBilling: str = Form(...),
+    PaymentMethod: str = Form(...),
+    MonthlyCharges: float = Form(...),
+    TotalCharges: float = Form(...),
+):
+    # Add the data to the database
+    try:
+        conn = sqlite3.connect(db_file)
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO customers (customerID, gender, SeniorCitizen, Partner, Dependents, tenure, PhoneService, MultipleLines, InternetService, OnlineSecurity, OnlineBackup, DeviceProtection, TechSupport, StreamingTV, StreamingMovies, Contract, PaperlessBilling, PaymentMethod, MonthlyCharges, TotalCharges, Churn) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                customerID,
+                gender,
+                SeniorCitizen,
+                Partner,
+                Dependents,
+                tenure,
+                PhoneService,
+                MultipleLines,
+                InternetService,
+                OnlineSecurity,
+                OnlineBackup,
+                DeviceProtection,
+                TechSupport,
+                StreamingTV,
+                StreamingMovies,
+                Contract,
+                PaperlessBilling,
+                PaymentMethod,
+                MonthlyCharges,
+                TotalCharges,
+                "No",
+            ),
+        )
+        conn.commit()
+        message = f"Customer {customerID} added successfully"
+    except sqlite3.Error as e:
+        print(f"SQLite error: {e}")
+        message = f"Fail to add customer {customerID}: {e}"
+    finally:
+        conn.close()
+
+    customer_ids = fetch_customer_ids()
     return templates.TemplateResponse(
-        "customer-database.html", {"request": request, "message": "Customer added"}
+        "customer-database.html",
+        {
+            "request": request,
+            "message_customer_added": message,
+            "customer_ids": customer_ids,
+        },
     )
 
 
 @app.post("/customer-database/delete", response_class=HTMLResponse)
 async def delete_customer(request: Request, customerID: str = Form(...)):
-    # You can implement code to delete a customer based on customerID
-    # Replace the following line with your database delete logic
-    # Delete the customer with customerID from your database
+    try:
+        # Connect to your database (replace this with your actual database connection code)
+        conn = sqlite3.connect(db_file)
+        cursor = conn.cursor()
+
+        # Delete the customer with the specified customerID
+        cursor.execute("DELETE FROM customers WHERE customerID = ?", (customerID,))
+
+        # Commit the changes and close the database connection
+        conn.commit()
+        conn.close()
+
+        message = f"Customer {customerID} deleted successfully"
+    except sqlite3.Error as e:
+        message = f"SQLite error: {e}"
+    customer_ids = fetch_customer_ids()
     return templates.TemplateResponse(
-        "customer-database.html", {"request": request, "message": "Customer deleted"}
+        "customer-database.html",
+        {
+            "request": request,
+            "message_customer_deleted": message,
+            "customer_ids": customer_ids,
+        },
     )
 
 

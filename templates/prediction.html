@@ -36,7 +36,7 @@
     <h2>Churn Prediction Form</h2>
     <div class="container">
         <div class="form-container">
-            <form action="/predict-churn" method="post" enctype="application/json">
+            <form action="/churn-prediction/predict-churn" method="post" enctype="application/json">
                 <div class="input-group">
                     <label for="gender">Gender:</label>
                     <select name="gender" id="gender" required>
@@ -210,7 +210,7 @@
             formData[key] = value;
         });
 
-        const response = await fetch('/predict-churn', {
+        const response = await fetch('/churn-prediction/predict-churn', {
             method: 'POST',
             body: JSON.stringify(formData),
             headers: {

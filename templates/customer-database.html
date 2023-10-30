@@ -107,18 +107,213 @@
         <p>No customer information available.</p>
         {% endif %}
     </div>
-
+    
     <h2>Add Customer</h2>
-    <form action="/customer-database/add" method="post">
-        <!-- Add input fields for customer information (e.g., name, email, etc.) -->
+    <form id="add-customer" action="/customer-database/add" method="post" enctype="application/json">
+        <table>
+            <tr>
+                <td>
+                    <label for="customerID">Customer ID:</label>
+                </td>
+                <td>
+                    <input type="text" name="customerID" id="customerID" required><br><br>
+                </td>
+            </tr>
+            <tr>
+                <td>Gender:</td>
+                <td>
+                    <select name="gender" id="gender" required>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </td>
+            </tr>
+        
+            <tr>
+                <td>Senior Citizen:</td>
+                <td>
+                    <select name="SeniorCitizen" id="SeniorCitizen" required>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </td>
+            </tr>
+    
+            <tr>
+                <td>Partner:</td>
+                <td>
+                    <select name="Partner" id="Partner" required>
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </td>
+            </tr>
+        
+            <tr>
+                <td>Dependents:</td>
+                <td>
+                    <select name="Dependents" id="Dependents" required>
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="tenure">tenure:</label>
+                </td>
+                <td>
+                    <input type="number" name="tenure" id="tenure" required><br><br>
+                </td>
+            </tr>
+            <tr>
+                <td>PhoneService:</td>
+                <td>
+                    <select name="PhoneService" id="PhoneService" required>
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>MultipleLines:</td>
+                <td>
+                    <select name="MultipleLines" id="MultipleLines" required>
+                        <option value="No">No</option>
+                        <option value="No phone service">No phone service</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>InternetService:</td>
+                <td>
+                    <select name="InternetService" id="InternetService" required>
+                        <option value="DSL">DSL</option>
+                        <option value="Fiber optic">Fiber optic</option>
+                        <option value="No">No</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>OnlineSecurity:</td>
+                <td>
+                    <select name="OnlineSecurity" id="OnlineSecurity" required>
+                        <option value="No">No</option>
+                        <option value="No internet service">No internet service</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>OnlineBackup:</td>
+                <td>
+                    <select name="OnlineBackup" id="OnlineBackup" required>
+                        <option value="No">No</option>
+                        <option value="No internet service">No internet service</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>DeviceProtection:</td>
+                <td>
+                    <select name="DeviceProtection" id="DeviceProtection" required>
+                        <option value="No">No</option>
+                        <option value="No internet service">No internet service</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>TechSupport:</td>
+                <td>
+                    <select name="TechSupport" id="TechSupport" required>
+                        <option value="No">No</option>
+                        <option value="No internet service">No internet service</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>StreamingTV:</td>
+                <td>
+                    <select name="StreamingTV" id="StreamingTV" required>
+                        <option value="No">No</option>
+                        <option value="No internet service">No internet service</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>StreamingMovies:</td>
+                <td>
+                    <select name="StreamingMovies" id="StreamingMovies" required>
+                        <option value="No">No</option>
+                        <option value="No internet service">No internet service</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Contract:</td>
+                <td>
+                    <select name="Contract" id="Contract" required>
+                        <option value="Month-to-month" selected>Month-to-month</option>
+                        <option value="One year">One year</option>
+                        <option value="Two year">Two year</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>PaperlessBilling:</td>
+                <td>
+                    <select name="PaperlessBilling" id="PaperlessBilling" required>
+                        <option value="Yes">Yes</option>
+                        <option value="No" selected>No</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>   
+                <td>PaymentMethod:</td>         
+                <td>
+                    <select name="PaymentMethod" id="PaymentMethod" required>
+                        <option value="Electronic check">Electronic check</option>
+                        <option value="Mailed check" selected>Mailed check</option>
+                        <option value="Bank transfert (automatic)">Bank transfert (automatic)</option>
+                        <option value="Credict card (automatic)">Credict card (automatic)</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="MonthlyCharges">Monthly Charges:</label>
+                </td>
+                <td>
+                    <input type="number" name="MonthlyCharges" id="MonthlyCharges" required><br><br>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="TotalCharges">Total Charges:</label>
+                </td>
+                <td>
+                    <input type="number" name="TotalCharges" id="TotalCharges" required><br><br>
+                </td>
+            </tr>
+        </table>
         <input type="submit" value="Add Customer">
     </form>
-
+    <div id="customer-added">{{message_customer_added}}</div>
+    
+    
     <h2>Delete Customer</h2>
-    <form action="/customer-database/delete" method="post">
+    <form id="delete-customer" action="/customer-database/delete" method="post">
         <label for="customerID">Customer ID:</label>
         <input type="text" name="customerID" id="customerID" required>
         <input type="submit" value="Delete">
     </form>
+    <div id="customer-deleted">{{message_customer_deleted}}</div>
+
 </body>
 </html>
