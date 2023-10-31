@@ -38,7 +38,7 @@ app.add_middleware(SessionMiddleware, secret_key=secret_key)
 fake_users_db = {"testuser": {"password": "testpassword"}}
 
 # Create an SQLite database (You can use a different database URL if needed)
-database_url = os.getenv("DATABASE_URL")
+database_url = os.getenv("DATABASE_URL", "sqlite:///customers.db")
 engine = create_engine(database_url)
 
 # Create tables in the database
