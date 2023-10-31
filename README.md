@@ -53,6 +53,18 @@ $ uvicorn api.main:app --reload
 
 You can then use the sample example in `data/example.json` to make a prediction.
 
+## Use a Docker container
+
+The github action is setup so that a docker image is built for every push on the repo. You can instantiate a VM to run the container by running the following commands:
+
+```BASH
+$ docker pull mbaelde/churn-prediction-poc
+# Copy the customers.db file on the VM in the directory /home/user/database
+$ echo "DATABASE_URL=sqlite:////data/customers.db" > .env
+$ docker run -v /home/user/database:/data -d -p 8000:8000 mbaelde/churn-prediction-poc
+$ docker cp .env container_id:/app
+$ docker restart container_id
+```
 ## Dataset description
 
 The "Telco Customer Churn" dataset is a popular dataset often used for customer churn analysis and prediction. It typically contains various customer-related variables, including demographic information, subscription details, and whether the customer has churned or not. Below is a description of the common variables found in such a dataset:

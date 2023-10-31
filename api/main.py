@@ -12,7 +12,6 @@ from starlette.middleware.sessions import SessionMiddleware
 from api.routers.prediction import predict_churn
 from api.schemas.prediction import CustomerChurnPrediction, CustomerData
 from database.models import (
-    Base,
     Contract,
     Customer,
     CustomerChurn,
@@ -39,12 +38,9 @@ app.add_middleware(SessionMiddleware, secret_key=secret_key)
 fake_users_db = {"testuser": {"password": "testpassword"}}
 
 # Create an SQLite database (You can use a different database URL if needed)
-database_url = os.getenv("DATABASE_URL", "sqlite:///customers.db")
+database_url = os.getenv("DATABASE_URL", "sqlite:////data/customers.db")
 logger.info(f"Load database: {database_url}")
 engine = create_engine(database_url)
-
-# Create tables in the database
-Base.metadata.create_all(engine)
 
 # Initialize a session to interact with the database
 Session = sessionmaker(bind=engine)
