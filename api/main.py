@@ -1,15 +1,24 @@
 import os
-import sqlite3
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from starlette.middleware.sessions import SessionMiddleware
 
 from api.routers.prediction import predict_churn
 from api.schemas.prediction import CustomerChurnPrediction, CustomerData
-from utils.logger import setup_logger
+from database.models import (
+    Base,
+    Contract,
+    Customer,
+    CustomerChurn,
+    InternetService,
+    PhoneService,
+)
+from utils.logger import DEBUG, INFO, setup_logger
 
 logger = setup_logger("api_main")
 
@@ -27,6 +36,16 @@ app.add_middleware(SessionMiddleware, secret_key=secret_key)
 
 # Simulated user database
 fake_users_db = {"testuser": {"password": "testpassword"}}
+
+# Create an SQLite database (You can use a different database URL if needed)
+database_url = os.getenv("DATABASE_URL")
+engine = create_engine(database_url)
+
+# Create tables in the database
+Base.metadata.create_all(engine)
+
+# Initialize a session to interact with the database
+Session = sessionmaker(bind=engine)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -90,22 +109,13 @@ async def predict_churn_endpoint(data: dict) -> CustomerChurnPrediction:
     return CustomerChurnPrediction(**{"churnPrediction": prediction})
 
 
-# SQLite database file
-db_file = "data/raw/telco_customer_churn.db"
-
-
 def fetch_customer_ids():
     customer_ids = []
-    try:
-        conn = sqlite3.connect(db_file)
-        cursor = conn.cursor()
-        cursor.execute("SELECT customerID FROM customers")
-        customer_ids = [row[0] for row in cursor.fetchall()]
-    except sqlite3.Error as e:
-        print(f"SQLite error: {e}")
-    finally:
-        conn.close()
 
+    with Session() as session:
+        # Retrieve customer IDs from the Customer table
+        customer_ids = [customer.id for customer in session.query(Customer).all()]
+        customer_ids.sort()
     return customer_ids
 
 
@@ -121,13 +131,39 @@ async def customer_database_page(request: Request):
 
 def fetch_customer_info(customerID):
     customer_info = {}
-    try:
-        conn = sqlite3.connect(db_file)
-        cursor = conn.cursor()
-
-        # Execute a SQL query to fetch customer information by customerID
-        cursor.execute("SELECT * FROM customers WHERE customerID=?", (customerID,))
-        customer_data = cursor.fetchone()  # Fetch the first matching record
+    with Session() as session:
+        # Use SQLAlchemy to fetch customer data by customer ID and join multiple tables
+        customer_data = (
+            session.query(
+                Customer.id,
+                Customer.gender,
+                Customer.seniorCitizen,
+                Customer.partner,
+                Customer.dependents,
+                Contract.tenure,
+                PhoneService.hasPhoneService,
+                PhoneService.multipleLines,
+                InternetService.internetServiceType,
+                InternetService.onlineSecurity,
+                InternetService.onlineBackup,
+                InternetService.deviceProtection,
+                InternetService.techSupport,
+                InternetService.streamingTV,
+                InternetService.streamingMovies,
+                Contract.contractType,
+                Contract.paperlessBilling,
+                Contract.paymentMethod,
+                Contract.monthlyCharges,
+                Contract.totalCharges,
+                CustomerChurn.churn,
+            )
+            .join(Contract, Contract.customer_id == Customer.id)
+            .join(PhoneService, PhoneService.contract_id == Contract.id)
+            .join(InternetService, InternetService.contract_id == Contract.id)
+            .join(CustomerChurn, CustomerChurn.customer_id == Customer.id, isouter=True)
+            .filter(Customer.id == customerID)
+            .first()
+        )
 
         if customer_data:
             # The cursor.fetchone() result is a tuple with columns in order
@@ -154,10 +190,8 @@ def fetch_customer_info(customerID):
                 "TotalCharges": customer_data[19],
                 "Churn": customer_data[20],
             }
-    except sqlite3.Error as e:
-        print(f"SQLite error: {e}")
-    finally:
-        conn.close()
+        else:
+            logger.log(INFO, "Customer not found.")
 
     return customer_info
 
@@ -187,58 +221,58 @@ async def add_customer(
     Partner: str = Form(...),
     Dependents: str = Form(...),
     tenure: int = Form(...),
-    PhoneService: str = Form(...),
+    phoneService: str = Form(...),
     MultipleLines: str = Form(...),
-    InternetService: str = Form(...),
+    internetService: str = Form(...),
     OnlineSecurity: str = Form(...),
     OnlineBackup: str = Form(...),
     DeviceProtection: str = Form(...),
     TechSupport: str = Form(...),
     StreamingTV: str = Form(...),
     StreamingMovies: str = Form(...),
-    Contract: str = Form(...),
+    contract: str = Form(...),
     PaperlessBilling: str = Form(...),
     PaymentMethod: str = Form(...),
     MonthlyCharges: float = Form(...),
     TotalCharges: float = Form(...),
 ):
     # Add the data to the database
-    try:
-        conn = sqlite3.connect(db_file)
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO customers (customerID, gender, SeniorCitizen, Partner, Dependents, tenure, PhoneService, MultipleLines, InternetService, OnlineSecurity, OnlineBackup, DeviceProtection, TechSupport, StreamingTV, StreamingMovies, Contract, PaperlessBilling, PaymentMethod, MonthlyCharges, TotalCharges, Churn) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (
-                customerID,
-                gender,
-                SeniorCitizen,
-                Partner,
-                Dependents,
-                tenure,
-                PhoneService,
-                MultipleLines,
-                InternetService,
-                OnlineSecurity,
-                OnlineBackup,
-                DeviceProtection,
-                TechSupport,
-                StreamingTV,
-                StreamingMovies,
-                Contract,
-                PaperlessBilling,
-                PaymentMethod,
-                MonthlyCharges,
-                TotalCharges,
-                "No",
-            ),
+    with Session() as session:
+        phone_service = PhoneService(
+            hasPhoneService=phoneService, multipleLines=MultipleLines
         )
-        conn.commit()
+        internet_service = InternetService(
+            internetServiceType=internetService,
+            onlineSecurity=OnlineSecurity,
+            onlineBackup=OnlineBackup,
+            deviceProtection=DeviceProtection,
+            techSupport=TechSupport,
+            streamingTV=StreamingTV,
+            streamingMovies=StreamingMovies,
+        )
+        contract = Contract(
+            contractType=contract,
+            tenure=tenure,
+            paperlessBilling=PaperlessBilling,
+            paymentMethod=PaymentMethod,
+            monthlyCharges=MonthlyCharges,
+            totalCharges=TotalCharges,
+            phone_service=phone_service,
+            internet_service=internet_service,
+        )
+
+        customer = Customer(
+            id=customerID,
+            gender=gender,
+            seniorCitizen=SeniorCitizen,
+            partner=Partner,
+            dependents=Dependents,
+            contracts=[contract],
+        )
+        session.add(customer)
+        session.commit()
+
         message = f"Customer {customerID} added successfully"
-    except sqlite3.Error as e:
-        print(f"SQLite error: {e}")
-        message = f"Fail to add customer {customerID}: {e}"
-    finally:
-        conn.close()
 
     customer_ids = fetch_customer_ids()
     return templates.TemplateResponse(
@@ -251,24 +285,52 @@ async def add_customer(
     )
 
 
+def delete_customer_data(session, customer):
+    # Delete related data (child tables)
+    session.query(CustomerChurn).filter_by(customer_id=customer.id).delete()
+    session.query(InternetService).filter_by(contract_id=customer.contract.id).delete()
+    session.query(PhoneService).filter_by(contract_id=customer.contract.id).delete()
+
+
+def delete_customer(session, customer):
+    # Delete the customer
+    session.delete(customer)
+
+
 @app.post("/customer-database/delete", response_class=HTMLResponse)
-async def delete_customer(request: Request, customerID: str = Form(...)):
-    try:
-        # Connect to your database (replace this with your actual database connection code)
-        conn = sqlite3.connect(db_file)
-        cursor = conn.cursor()
+async def delete_customer(
+    request: Request, customerID: str = Form(...)
+):  # Use a context manager to create and manage a session
+    with Session() as session:
+        # Retrieve the customer to delete
+        customer_to_delete = session.query(Customer).filter_by(id=customerID).first()
 
-        # Delete the customer with the specified customerID
-        cursor.execute("DELETE FROM customers WHERE customerID = ?", (customerID,))
+        if customer_to_delete:
+            contract_to_delete = (
+                session.query(Contract)
+                .filter_by(customer_id=customer_to_delete.id)
+                .first()
+            )
+            session.query(PhoneService).filter_by(
+                contract_id=contract_to_delete.id
+            ).delete()
+            session.query(InternetService).filter_by(
+                contract_id=contract_to_delete.id
+            ).delete()
+            session.query(CustomerChurn).filter_by(
+                customer_id=customer_to_delete.id
+            ).delete()
 
-        # Commit the changes and close the database connection
-        conn.commit()
-        conn.close()
+            # Delete the customer
+            session.delete(customer_to_delete)
+            session.delete(contract_to_delete)
+            session.commit()
+            message = f"Customer {customerID} deleted successfully"
+        else:
+            message = f"Customer {customerID} not found"
 
-        message = f"Customer {customerID} deleted successfully"
-    except sqlite3.Error as e:
-        message = f"SQLite error: {e}"
     customer_ids = fetch_customer_ids()
+
     return templates.TemplateResponse(
         "customer-database.html",
         {
