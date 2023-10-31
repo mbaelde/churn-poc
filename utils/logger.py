@@ -1,8 +1,5 @@
 import logging
 
-INFO = logging.INFO
-DEBUG = logging.DEBUG
-
 
 def setup_logger(
     logger_name: str, log_file: str = "log.log", level: int = logging.INFO

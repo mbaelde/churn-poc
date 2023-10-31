@@ -1,4 +1,5 @@
 import os
+from typing import Any, Dict, List
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Form, Request
@@ -18,7 +19,7 @@ from database.models import (
     InternetService,
     PhoneService,
 )
-from utils.logger import DEBUG, INFO, setup_logger
+from utils.logger import setup_logger
 
 logger = setup_logger("api_main")
 
@@ -39,6 +40,7 @@ fake_users_db = {"testuser": {"password": "testpassword"}}
 
 # Create an SQLite database (You can use a different database URL if needed)
 database_url = os.getenv("DATABASE_URL", "sqlite:///customers.db")
+logger.info(f"Load database: {database_url}")
 engine = create_engine(database_url)
 
 # Create tables in the database
@@ -82,6 +84,7 @@ async def login(request: Request, username: str = Form(...), password: str = For
     """
     user = fake_users_db.get(username)
     if user is None or user["password"] != password:
+        logger.info(f"User {user} connection declined")
         return templates.TemplateResponse(
             "login.html", {"request": request, "message": "Invalid credentials"}
         )
@@ -90,6 +93,7 @@ async def login(request: Request, username: str = Form(...), password: str = For
     request.session["user"] = username
 
     # Redirect to a protected route
+    logger.info(f"User {user} successfully connected")
     return templates.TemplateResponse("dashboard.html", {"request": request})
 
 
@@ -104,12 +108,14 @@ async def predict_churn_endpoint(data: dict) -> CustomerChurnPrediction:
         dict: Prediction result.
 
     """
+    logger.debug(f"Use data for prediction: {data}")
     data = CustomerData(**data)
     prediction = predict_churn(data)
+    logger.info(f"Churn prediction: {prediction}")
     return CustomerChurnPrediction(**{"churnPrediction": prediction})
 
 
-def fetch_customer_ids():
+def fetch_customer_ids() -> List[str]:
     customer_ids = []
 
     with Session() as session:
@@ -122,6 +128,7 @@ def fetch_customer_ids():
 @app.get("/customer-database", response_class=HTMLResponse)
 async def customer_database_page(request: Request):
     # Fetch customer IDs from the database
+    logger.info("Fetch customer ids")
     customer_ids = fetch_customer_ids()
 
     return templates.TemplateResponse(
@@ -129,7 +136,7 @@ async def customer_database_page(request: Request):
     )
 
 
-def fetch_customer_info(customerID):
+def fetch_customer_info(customerID) -> Dict[str, Any]:
     customer_info = {}
     with Session() as session:
         # Use SQLAlchemy to fetch customer data by customer ID and join multiple tables
@@ -190,8 +197,9 @@ def fetch_customer_info(customerID):
                 "TotalCharges": customer_data[19],
                 "Churn": customer_data[20],
             }
+            logger.info(f"Find customer {customerID} information")
         else:
-            logger.log(INFO, "Customer not found.")
+            logger.info(f"Customer {customerID} not found.")
 
     return customer_info
 
@@ -230,49 +238,53 @@ async def add_customer(
     TechSupport: str = Form(...),
     StreamingTV: str = Form(...),
     StreamingMovies: str = Form(...),
-    contract: str = Form(...),
+    contractType: str = Form(...),
     PaperlessBilling: str = Form(...),
     PaymentMethod: str = Form(...),
     MonthlyCharges: float = Form(...),
     TotalCharges: float = Form(...),
 ):
     # Add the data to the database
-    with Session() as session:
-        phone_service = PhoneService(
-            hasPhoneService=phoneService, multipleLines=MultipleLines
-        )
-        internet_service = InternetService(
-            internetServiceType=internetService,
-            onlineSecurity=OnlineSecurity,
-            onlineBackup=OnlineBackup,
-            deviceProtection=DeviceProtection,
-            techSupport=TechSupport,
-            streamingTV=StreamingTV,
-            streamingMovies=StreamingMovies,
-        )
-        contract = Contract(
-            contractType=contract,
-            tenure=tenure,
-            paperlessBilling=PaperlessBilling,
-            paymentMethod=PaymentMethod,
-            monthlyCharges=MonthlyCharges,
-            totalCharges=TotalCharges,
-            phone_service=phone_service,
-            internet_service=internet_service,
-        )
+    try:
+        with Session() as session:
+            phone_service = PhoneService(
+                hasPhoneService=phoneService, multipleLines=MultipleLines
+            )
+            internet_service = InternetService(
+                internetServiceType=internetService,
+                onlineSecurity=OnlineSecurity,
+                onlineBackup=OnlineBackup,
+                deviceProtection=DeviceProtection,
+                techSupport=TechSupport,
+                streamingTV=StreamingTV,
+                streamingMovies=StreamingMovies,
+            )
+            contract = Contract(
+                contractType=contractType,
+                tenure=tenure,
+                paperlessBilling=PaperlessBilling,
+                paymentMethod=PaymentMethod,
+                monthlyCharges=MonthlyCharges,
+                totalCharges=TotalCharges,
+                phone_service=phone_service,
+                internet_service=internet_service,
+            )
 
-        customer = Customer(
-            id=customerID,
-            gender=gender,
-            seniorCitizen=SeniorCitizen,
-            partner=Partner,
-            dependents=Dependents,
-            contracts=[contract],
-        )
-        session.add(customer)
-        session.commit()
+            customer = Customer(
+                id=customerID,
+                gender=gender,
+                seniorCitizen=SeniorCitizen,
+                partner=Partner,
+                dependents=Dependents,
+                contracts=[contract],
+            )
+            session.add(customer)
+            session.commit()
 
-        message = f"Customer {customerID} added successfully"
+            message = f"Customer {customerID} added successfully"
+    except Exception as e:
+        message = f"An error occured while adding customer {customerID}: {e}"
+    logger.info(message)
 
     customer_ids = fetch_customer_ids()
     return templates.TemplateResponse(
@@ -328,6 +340,7 @@ async def delete_customer(
             message = f"Customer {customerID} deleted successfully"
         else:
             message = f"Customer {customerID} not found"
+    logger.info(message)
 
     customer_ids = fetch_customer_ids()
 
