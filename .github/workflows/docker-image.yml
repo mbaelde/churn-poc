@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DATABASE_URL: "sqlite:///home/baelde_maxime/customers.db"
+      DATABASE_URL: "sqlite:////data/customers.db"
 
     steps:
     - uses: actions/checkout@v3
