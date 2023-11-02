@@ -46,21 +46,24 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="SeniorCitizen">Senior Citizen:</label>
-                    <input type="number" name="SeniorCitizen" id="SeniorCitizen" required value="0"><br><br>
-                </div>
-
-                <div class="input-group">
-                    <label for="Partner">Partner:</label>
-                    <select name="Partner" id="Partner" required>
+                    <label for="seniorCitizen">Senior Citizen:</label>
+                    <select name="seniorCitizen" id="seniorCitizen" required>
                         <option value="Yes" selected>Yes</option>
                         <option value="No">No</option>
                     </select>
                 </div>
 
                 <div class="input-group">
-                    <label for="Dependents">Dependents:</label>
-                    <select name="Dependents" id="Dependents" required>
+                    <label for="partner">Partner:</label>
+                    <select name="partner" id="partner" required>
+                        <option value="Yes" selected>Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="dependents">Dependents:</label>
+                    <select name="dependents" id="dependents" required>
                         <option value="Yes">Yes</option>
                         <option value="No" selected>No</option>
                     </select>
@@ -72,16 +75,16 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="PhoneService">Phone Service:</label>
-                    <select name="PhoneService" id="PhoneService" required>
+                    <label for="hasPhoneService">Phone Service:</label>
+                    <select name="hasPhoneService" id="hasPhoneService" required>
                         <option value="Yes" selected>Yes</option>
                         <option value="No">No</option>
                     </select>
                 </div>
 
                 <div class="input-group">
-                    <label for="MultipleLines">Multiple Lines:</label>
-                    <select name="MultipleLines" id="MultipleLines" required>
+                    <label for="multipleLines">Multiple Lines:</label>
+                    <select name="multipleLines" id="multipleLines" required>
                         <option value="Yes">Yes</option>
                         <option value="No" selected>No</option>
                         <option value="No phone service">No phone service</option>
@@ -89,8 +92,8 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="InternetService">Internet Service:</label>
-                    <select name="InternetService" id="InternetService" required>
+                    <label for="internetServiceType">Internet Service:</label>
+                    <select name="internetServiceType" id="internetServiceType" required>
                         <option value="DSL" selected>DSL</option>
                         <option value="Fiber optic">Fiber optic</option>
                         <option value="No">No</option>
@@ -98,8 +101,8 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="OnlineSecurity">Online Security:</label>
-                    <select name="OnlineSecurity" id="OnlineSecurity" required>
+                    <label for="onlineSecurity">Online Security:</label>
+                    <select name="onlineSecurity" id="onlineSecurity" required>
                         <option value="Yes" selected>Yes</option>
                         <option value="No">No</option>
                         <option value="No internet service">No internet service</option>
@@ -107,8 +110,8 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="OnlineBackup">Online Backup:</label>
-                    <select name="OnlineBackup" id="OnlineBackup" required>
+                    <label for="onlineBackup">Online Backup:</label>
+                    <select name="onlineBackup" id="onlineBackup" required>
                         <option value="Yes">Yes</option>
                         <option value="No" selected>No</option>
                         <option value="No internet service">No internet service</option>
@@ -116,8 +119,8 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="DeviceProtection">Device Protection:</label>
-                    <select name="DeviceProtection" id="DeviceProtection" required>
+                    <label for="deviceProtection">Device Protection:</label>
+                    <select name="deviceProtection" id="deviceProtection" required>
                         <option value="Yes">Yes</option>
                         <option value="No" selected>No</option>
                         <option value="No internet service">No internet service</option>
@@ -125,8 +128,8 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="TechSupport">Tech Support:</label>
-                    <select name="TechSupport" id="TechSupport" required>
+                    <label for="techSupport">Tech Support:</label>
+                    <select name="techSupport" id="techSupport" required>
                         <option value="Yes" selected>Yes</option>
                         <option value="No">No</option>
                         <option value="No internet service">No internet service</option>
@@ -134,8 +137,8 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="StreamingTV">Streaming TV:</label>
-                    <select name="StreamingTV" id="StreamingTV" required>
+                    <label for="streamingTV">Streaming TV:</label>
+                    <select name="streamingTV" id="streamingTV" required>
                         <option value="Yes">Yes</option>
                         <option value="No" selected>No</option>
                         <option value="No internet service">No internet service</option>
@@ -143,8 +146,8 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="StreamingMovies">Streaming Movies:</label>
-                    <select name="StreamingMovies" id="StreamingMovies" required>
+                    <label for="streamingMovies">Streaming Movies:</label>
+                    <select name="streamingMovies" id="streamingMovies" required>
                         <option value="Yes">Yes</option>
                         <option value="No" selected>No</option>
                         <option value="No internet service">No internet service</option>
@@ -152,8 +155,8 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="Contract">Contract:</label>
-                    <select name="Contract" id="Contract" required>
+                    <label for="contractType">Contract:</label>
+                    <select name="contractType" id="contractType" required>
                         <option value="Month-to-month" selected>Month-to-month</option>
                         <option value="One year">One year</option>
                         <option value="Two year">Two year</option>
@@ -161,16 +164,16 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="PaperlessBilling">Paperless Billing:</label>
-                    <select name="PaperlessBilling" id="PaperlessBilling" required>
+                    <label for="paperlessBilling">Paperless Billing:</label>
+                    <select name="paperlessBilling" id="paperlessBilling" required>
                         <option value="Yes">Yes</option>
                         <option value="No" selected>No</option>
                     </select>
                 </div>
 
                 <div class="input-group">
-                    <label for="PaymentMethod">Payment Method:</label>
-                    <select name="PaymentMethod" id="PaymentMethod" required>
+                    <label for="paymentMethod">Payment Method:</label>
+                    <select name="paymentMethod" id="paymentMethod" required>
                         <option value="Electronic check">Electronic check</option>
                         <option value="Mailed check" selected>Mailed check</option>
                         <option value="Bank transfert (automatic)">Bank transfert (automatic)</option>
@@ -179,13 +182,13 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="MonthlyCharges">Monthly Charges:</label>
-                    <input type="number" name="MonthlyCharges" id="MonthlyCharges" step="0.01" required value="53.6"><br><br>
+                    <label for="monthlyCharges">Monthly Charges:</label>
+                    <input type="number" name="monthlyCharges" id="monthlyCharges" step="0.01" required value="53.6"><br><br>
                 </div>
 
                 <div class="input-group">
-                    <label for="TotalCharges">Total Charges:</label>
-                    <input type="number" name="TotalCharges" id="TotalCharges" step="0.01" required value="1315.35"><br><br>
+                    <label for="totalCharges">Total Charges:</label>
+                    <input type="number" name="totalCharges" id="totalCharges" step="0.01" required value="1315.35"><br><br>
                 </div>
 
                 <input type="submit" value="Predict Churn">
