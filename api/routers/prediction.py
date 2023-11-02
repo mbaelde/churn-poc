@@ -92,7 +92,9 @@ output_map = {0: "No Churn", 1: "Churn"}
 
 def predict_churn(data):
     # Convert the input data to a Pandas DataFrame
-    input_data = pd.DataFrame([data.dict()])
+    input_data = pd.DataFrame(
+        [{k: v for k, v in data.dict().items() if k != "customerID"}]
+    )
 
     # Perform the necessary preprocessing steps on the input data
     # (e.g., encoding categorical variables and feature scaling)

@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 
 class CustomerData(BaseModel):
+    customerID: str
     gender: str
     seniorCitizen: str
     partner: str

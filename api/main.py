@@ -2,7 +2,7 @@ import os
 from typing import Any, Dict, List
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Form, Request
+from fastapi import BackgroundTasks, FastAPI, Form, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import create_engine
@@ -94,7 +94,9 @@ async def login(request: Request, username: str = Form(...), password: str = For
 
 
 @app.post("/churn-prediction/predict-churn")
-async def predict_churn_endpoint(data: dict) -> CustomerChurnPrediction:
+async def predict_churn_endpoint(
+    data: dict, background_tasks: BackgroundTasks
+) -> CustomerChurnPrediction:
     """Predict churn based on customer data.
 
     Args:
@@ -108,7 +110,28 @@ async def predict_churn_endpoint(data: dict) -> CustomerChurnPrediction:
     data = CustomerData(**data)
     prediction = predict_churn(data)
     logger.info(f"Churn prediction: {prediction}")
+
+    # Store churn prediction asynchronously
+    background_tasks.add_task(
+        add_churn_prediction, customer_id=data.customerID, churn_prediction=prediction
+    )
+
     return CustomerChurnPrediction(**{"churnPrediction": prediction})
+
+
+def add_churn_prediction(customer_id: int, churn_prediction: bool):
+    """Add churn prediction to the database (simulated)."""
+    with Session() as session:
+        customer_churn = CustomerChurn(churn=churn_prediction, customer_id=customer_id)
+        session.add(customer_churn)
+        session.commit()
+
+
+@app.post("/customer-database/add-prediction")
+async def add_churn_prediction_to_database(customer_id: int, churn_prediction: bool):
+    """Add churn prediction to the database."""
+    add_churn_prediction(customer_id, churn_prediction)
+    return {"message": "Churn prediction added to the database"}
 
 
 def fetch_customer_ids() -> List[str]:
