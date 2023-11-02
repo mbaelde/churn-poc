@@ -21,28 +21,29 @@ class TestChurnModel(unittest.TestCase):
 
         label_encoded_variables = [
             "gender",
-            "Partner",
-            "Dependents",
-            "PhoneService",
-            "PaperlessBilling",
-            "Contract",
-            "PaymentMethod",
+            "seniorCitizen",
+            "partner",
+            "dependents",
+            "hasPhoneService",
+            "paperlessBilling",
+            "contractType",
+            "paymentMethod",
             "TenureGroup",
         ]
         onehot_encoded_variables = [
-            "MultipleLines",
-            "InternetService",
-            "OnlineSecurity",
-            "OnlineBackup",
-            "DeviceProtection",
-            "TechSupport",
-            "StreamingTV",
-            "StreamingMovies",
+            "multipleLines",
+            "internetServiceType",
+            "onlineSecurity",
+            "onlineBackup",
+            "deviceProtection",
+            "techSupport",
+            "streamingTV",
+            "streamingMovies",
         ]
         standard_scaler_variables = [
             "tenure",
-            "MonthlyCharges",
-            "TotalCharges",
+            "monthlyCharges",
+            "totalCharges",
             "MonthlyTotalChargesRatio",
         ]
 
@@ -61,11 +62,11 @@ class TestChurnModel(unittest.TestCase):
             output_variables=["tenure", "TenureGroup"],
         )
         ratio_computer = FeaturePreprocessor(
-            RatioComputer("MonthlyCharges", "TotalCharges", "MonthlyTotalChargesRatio"),
-            encoded_variables=["MonthlyCharges", "TotalCharges"],
+            RatioComputer("monthlyCharges", "totalCharges", "MonthlyTotalChargesRatio"),
+            encoded_variables=["monthlyCharges", "totalCharges"],
             output_variables=[
-                "MonthlyCharges",
-                "TotalCharges",
+                "monthlyCharges",
+                "totalCharges",
                 "MonthlyTotalChargesRatio",
             ],
         )
