@@ -18,7 +18,6 @@ from models.features import (
 
 class TestChurnModel(unittest.TestCase):
     def setUp(self):
-
         label_encoded_variables = [
             "gender",
             "seniorCitizen",
@@ -109,9 +108,10 @@ class TestChurnModel(unittest.TestCase):
             self.data = json.load(f)
 
     def test_churn_prediction(self):
-
         # Convert the input data to a Pandas DataFrame
-        input_data = pd.DataFrame([self.data])
+        input_data = pd.DataFrame(
+            [{k: v for k, v in self.data.items() if k != "customerID"}]
+        )
 
         # Make a prediction using the model
         prediction = self.churn_model.predict(input_data)

@@ -84,7 +84,12 @@ def main(
             .all()
         )
 
-    data = pd.DataFrame.from_dict(customers)
+    data = pd.concat(
+        [
+            pd.DataFrame.from_dict(customer._mapping, orient="index").T
+            for customer in customers
+        ]
+    )
     data.set_index("id", inplace=True)
 
     # Define the columns to be encoded

@@ -5,13 +5,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.testclient import TestClient
 
 from api.main import Session, app
-from database.models import (
-    Contract,
-    Customer,  # Import your models
-    CustomerChurn,
-    InternetService,
-    PhoneService,
-)
+from database.models import Contract, Customer, InternetService, PhoneService
 
 
 class TestAPI(unittest.TestCase):

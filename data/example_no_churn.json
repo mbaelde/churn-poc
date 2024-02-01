@@ -1,4 +1,5 @@
 {
+    "customerID": "Fake-USER",
     "gender": "Male",
     "seniorCitizen": "No",
     "partner": "Yes",

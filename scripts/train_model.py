@@ -87,7 +87,12 @@ def main(
             .all()
         )
 
-    data = pd.DataFrame.from_dict(customers)
+    data = pd.concat(
+        [
+            pd.DataFrame.from_dict(customer._mapping, orient="index").T
+            for customer in customers
+        ]
+    )
     data.set_index("id", inplace=True)
 
     # Define the columns to be encoded
@@ -178,7 +183,7 @@ def main(
     )
 
     training_data_path = processed_data_dir.joinpath("telco_customer_churn.csv")
-    if overwrite_preprocessing:
+    if overwrite_preprocessing or (not training_data_path.exists()):
         data_encoded = feature_pipeline.fit_transform(data)
         scaler.serialize(preprocessors_dir.joinpath("standard_scaler.pkl"))
         label_encoder.serialize(preprocessors_dir.joinpath(f"label_encoder.pkl"))

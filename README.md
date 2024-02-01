@@ -1,6 +1,6 @@
 # churn-poc
 
-The goal of this project is to create a data-driven application that predicts customer churn for a subscription-based business using a provided dataset. You will develop a FastAPI-based API for making real-time churn predictions and showcase your proficiency in Python, SQL, and Git throughout the project.
+The goal of this project is to create a data-driven application that predicts customer churn for a subscription-based business using a provided dataset. 
 
 ## How to
 
@@ -20,27 +20,30 @@ The file `WA_Fn-UseC_-Telco-Customer-Churn.csv` should be put in the `data/raw/`
 
 ## Init the database
 
-The first time you use the package, you have to initialise the databases by running the following scripts:
+The first time you use the package, you have to initialize the database by running the following script:
 
 ```bash
 $ python database/init_customer_db.py
-$ python database/init_customer_churn_db.py
-```
-
-## Preprocess the database to train the model
-
-Then you have to preprocess the customer database using the following script:
-
-```bash
-$ python data/preprocessing.py
 ```
 
 ## Train the model
 
-Finally you can train a basic classification model using the following script:
+You can train a basic classification model using the following script:
 
 ```bash
 $ python models/train_model.py
+```
+
+This will create a cross validation over 5 folds. You can assess the performance of the model by computing the predictions:
+
+```bash
+$ python models/predict_model.py
+```
+
+In order to train a model for production, run:
+
+```bash
+$ python models/train_model.py --to-production
 ```
 
 ## Run a server with FastAPI
@@ -65,6 +68,7 @@ $ docker run -v /home/user/database:/data -d -p 8000:8000 mbaelde/churn-predicti
 $ docker cp .env container_id:/app
 $ docker restart container_id
 ```
+
 ## Dataset description
 
 The "Telco Customer Churn" dataset is a popular dataset often used for customer churn analysis and prediction. It typically contains various customer-related variables, including demographic information, subscription details, and whether the customer has churned or not. Below is a description of the common variables found in such a dataset:

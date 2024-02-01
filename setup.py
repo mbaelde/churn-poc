@@ -15,6 +15,8 @@ setup(
         "python-dotenv",
         "httpx",
         "jinja2",
+        "python-multipart",
+        "itsdangerous",
     ],
     entry_points={
         "console_scripts": [
